@@ -38,7 +38,7 @@
 			// Get master key
 			var HDPrivateKey = bitcore.HDPrivateKey.fromSeed(m2.toHex(), NETWORK);
 
-			for (var i = 0; i < 10; i++) {
+			for (var i = 0; i < 50; i++) {
 				// derive child keys
 				var derived = HDPrivateKey.derive("m/0'/0/" + i);
 				//var derived = HDPrivateKey.derive("m/45'/0/" + i);
