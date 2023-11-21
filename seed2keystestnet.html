@@ -37,7 +37,7 @@
 			thekeys = thekeys + "------------\nTESTNET\n";
 			// Get master key
 			var THDPrivateKey = bitcore.HDPrivateKey.fromSeed(m2.toHex(), bitcore.Networks.testnet);
-			for (var i = 0; i < 10; i++) {
+			for (var i = 0; i < 50; i++) {
 				// derive child keys
 				var tderived = THDPrivateKey.derive("m/0'/0/" + i);
 				var taddress = new bitcore.Address(tderived.publicKey, bitcore.Networks.testnet);
