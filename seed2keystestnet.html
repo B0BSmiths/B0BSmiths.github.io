@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Counterparty Seed to Keys</title>
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<script src="js/jquery-1.11.1.min.js"></script>
+<script src="js/mnemonic-1.1.0.js"></script>
+<script src="js/bitcoinjs-lib.min.js"></script>
+<script src="js/bitcore/bitcore.min.js"></script>
+<script>
+<!--
+	/*				
+		#################
+		# Javascript to derive private and public key pairs + addresses from a Counterparty 12 word seed.
+		# Mainnet - legacy and segwit (bech32) addresses supported
+		# Note: One privkey is used to generate both legacy and segwit address, pubkey therefore is also the ame! 
+		#################
+	*/
+
+	var bitcore = require('bitcore');
+	const NETWORK = bitcore.Networks.testnet
+	bitcore.Networks.defaultNetwork = bitcore.Networks.testnet;
+
+	$(document).ready(function () {
+		function getkeys(inputpassphrase){
+			
+			var thekeys = "";
+			thekeys = thekeys + "Path\nLegacy Address\nSegwit Address\nPublic Key (HEX) \nPrivate Key (WIF)\n\n";
+
+			var string = inputpassphrase.trim().toLowerCase();
+			string = string.replace(/\s{2,}/g, ' ');
+			var array = string.split(" ");
+			var m2 = Mnemonic.fromWords(array);
+
+			// Testnet
+			thekeys = thekeys + "------------\nTESTNET\n";
+			// Get master key
+			var THDPrivateKey = bitcore.HDPrivateKey.fromSeed(m2.toHex(), bitcore.Networks.testnet);
+			for (var i = 0; i < 10; i++) {
+				// derive child keys
+				var tderived = THDPrivateKey.derive("m/0'/0/" + i);
+				var taddress = new bitcore.Address(tderived.publicKey, bitcore.Networks.testnet);
+				var taddress = taddress.toString();
+				var tpubkey = tderived.publicKey.toString('hex');
+				var tprivkey = tderived.privateKey.toWIF();
+				var addr_tsegwit = bitcoinjs.payments.p2wpkh({pubkey: tderived.publicKey.toBuffer(), network: bitcoinjs.networks.testnet}).address;
+					
+				// show user
+				thekeys = thekeys + "m/0'/0/" + i +'\n'+taddress +'\n'+ addr_tsegwit +'\n'+ tpubkey +'\n'+tprivkey+'\n\n';
+			}
+
+		// Show the user the data
+    	return thekeys;
+	} // end getkeys()
+		
+	$("#showbutton").click(function() {
+		var keys = getkeys($('#seed').val());
+		$("#userkeys").html("<pre>" + keys + "</pre>");
+		$("#inputinfo").hide();
+		$("#showresult").show();
+	}) // end showbutton()
+
+}) // end document.ready()  
+
+//-->
+</script>
+</head>
+<body>
+
+<h1 align="center" style="margin-top: 60px;">Seed 2 Keys</h1>
+<div style="margin: auto; width: 600px;">
+
+<p align="center" style="margin: 0px 40px 0px 40px;">Enter your Counterparty compatible seed to derive your keys on the m/0'/0/ path.</p>
+<br/>
+<p align="center" style="margin: 0px 40px 0px 40px;">WARNING: This tool exposes your TESTNET private keys, but please take care with them as they are infact exactly the same as your mainnet private keys!</p>
+
+<div id="inputinfo">
+	<div style="margin: 10px auto 0 auto; padding: 30px;">
+	<form>
+	  <div>
+    	12 word seed
+    	<input type="text" class="form-control" id="seed" value="">
+  	</div>
+  	<br/>
+  	<div align="center" style="margin: auto;">
+  		<button type="button" class="btn btn-default" id="showbutton">Show Addresses</button>
+  	</div>
+	</form>
+</div>
+</div>
+
+<div id="showresult">
+	<div style="margin: 34px 0 0 0; padding: 30px;">
+		<div id="userkeys"></div>
+	</div>	
+</div>
+</body>
+</html>
