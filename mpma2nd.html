@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html>
+    <title>Counterparty 2nd Part MPMA Signing Tool</title>
+	<script type="text/javascript" src="bitcoinjs-lib.min.js"></script>	
+	<script type="text/javascript" src="buffer.min.js"></script>	
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script>
+<!--
+    function signmpmatx(){
+        
+        //
+    	  // Function to sign 2nd part of a two part Counterparty MPMA Send
+        //
+
+        // Grab input data from the form
+        mywif = $('#pk').val().trim();
+        mytx = $('#unsigned_transaction').val().trim();
+	
+        // Populate transaction and private key objects
+        keyPair = bitcoinjs.ECPair.fromWIF(mywif)
+        dataTx = bitcoinjs.Transaction.fromHex(mytx)
+
+        // The type of signature we want to use 
+        sigType = bitcoinjs.Transaction.SIGHASH_ALL
+
+        // Loop the inputs and sign them - there are no outputs that require a signature
+        for (let i=0; i < dataTx.ins.length; i++) {
+            var sigHash = dataTx.hashForSignature(i, bitcoinjs.script.decompile(dataTx.ins[i].script)[0], sigType), 
+                sig = keyPair.sign(sigHash),
+                encodedSig = bitcoinjs.script.signature.encode(sig, sigType),
+                compiled = bitcoinjs.script.compile([encodedSig]);
+            dataTx.ins[i].script = buffer.Buffer.concat([compiled, dataTx.ins[i].script]);
+        }
+        
+        // Capture the signed tx hex
+        var signedHex = dataTx.toHex();
+    
+        // Show the signed tx hex to the user
+        msg = 'Signed TX HEX<br><textarea class="form-control" id="unsigned_transaction" rows="15" cols="80" disabled>'+signedHex+'</textarea>'
+        
+        // Update the screen
+        $("#signedtxhex").html(msg);
+        $("#inputinfo").hide();
+        $("#showresult").show();                    
+    }
+
+    $(document).ready(function () {
+       $("#showresult").hide();            
+    }); // end doc ready
+//-->
+</script>
+<body>
+<h1 align="center" style="margin-top: 60px;">Sign 2<sup>nd</sup> Part of a MPMA Send</h1>
+<div id="inputinfo" align="center">
+    <div style="margin: 10px auto 0 auto; padding: 30px;">
+    <form>
+        <div>
+            Private Key (WIF)<br>
+            <input type="text" class="form-control" id="pk" value="" size=60>
+        </div>
+        <br/>
+        Counterparty API Generated Unsigned MPMA Step 2 TX HEX<br>
+        <textarea class="form-control" id="unsigned_transaction" rows="10" cols="80"></textarea>
+        <br/><br/>
+        <div align="center" style="margin: auto;">
+            <button type="button" class="btn btn-default" id="showbutton" onclick="javascript:signmpmatx()">Sign TX</button>
+        </div>
+    </form>
+    </div>
+</div>
+
+<div id="showresult" align="center">
+    <div style="margin: 10px 0 0 0; padding: 30px;" align="center">
+        <div id="signedtxhex" align="center">
+        </div>
+    </div>  
+</div>
+</body>
+</html>
