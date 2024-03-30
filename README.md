@@ -1,2 +1,2 @@
-# CPSeed2Keys
-Scripts to derive keys from Counterparty compatible seed
+# B0BSmiths Counterparty Tools
+Tools that can be useful when working with Counterparty
