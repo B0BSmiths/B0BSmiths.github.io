@@ -1,0 +1,153 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Signed Public Key Verification Tool</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.35.4/js/bootstrap-dialog.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous" referrerpolicy="no-referrer">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.35.4/css/bootstrap-dialog.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous" referrerpolicy="no-referrer">
+	<style>
+		body.body{
+		margin-top: 10px;
+		}
+		
+		div.styleMnemoic {
+			border-style: solid;
+			border-color: #EEEEEE;
+			border-width: .5px;
+			padding: 20px;
+			background-color: #ECECEC;
+		}
+
+		footer {
+		 	left:0; 
+    		bottom:0 
+    		width:100vw;
+    	} 
+
+		footer.footer {
+			position: absloute;
+			bottom: 0;
+			width: 100%;
+			height: 30px;
+			/* Set the fixed height of the footer here */
+			line-height: 28px;
+			/* Vertically center the text there */
+		}
+
+		a {
+			text-decoration: none;
+			color: #212529;
+		}
+	</style>
+
+	<script type="text/javascript" src="js/lib/bitcore-lib-v0.13.5-patched.min.js" ></script> 
+  <script type="text/javascript" src="js/lib/bitcore-message.min.js"></script>
+	<script type="text/javascript" src="js/lib/bitcoinjs-lib.min.js"></script>
+	
+	
+
+	<script type="text/javascript">
+	<!--
+	// ######### SCRIPT SETUP ######### 
+	
+	// Initialize a Bitcore Object
+	var bitcore = require('bitcore-lib');
+	var Message = require('bitcore-message');
+
+	// MAINNET SETTINGS
+	 const NETWORK = bitcore.Networks.livenet
+	 bitcore.Networks.defaultNetwork = bitcore.Networks.livenet;
+	 const thenetwork = bitcoinjs.networks.mainnet
+	 const mynetwork = "LIVE"
+	
+	// TESTNET SETTINGS
+	//	 const NETWORK = bitcore.Networks.testnet
+	//	 bitcore.Networks.defaultNetwork = bitcore.Networks.testnet;
+	//	 const thenetwork = bitcoinjs.networks.testnet
+	//	 const mynetwork = "TEST"
+
+	// Setup APP HEADER 
+	const APPHEADER = "<h4>Public Key Signing Tool</h4><hr width='25%'/>";
+
+	// APP FOOTER
+	const FOOTERMSG = "<hr width='25%'/>"
+
+	function verifyMessage(msg, address, sig){
+		var verify = Message(msg).verify(address, sig);
+		return (verify);
+ 	} // End Function
+
+		
+	function verifysignedpubkey(){
+		
+		msg = ""
+		var pubkey = $('#pubkey').val().trim();
+		var signature = $('#signature').val().trim();
+
+		if (pubkey.length>=1 && signature.length>=1){
+	
+		thepk = new bitcore.PublicKey(pubkey);
+		address = new bitcore.Address(thepk);
+
+
+		verify = verifyMessage(pubkey,address,signature);
+
+		if (verify) {
+			msg = "Verified.  The public key was signed by its private key and is for address: " +  address
+
+		}
+		else{
+			msg = "Sorry but the signature failed verification"
+		}
+		
+		msg = msg + "<br /><br />"
+		$("#walletinfo").html(msg);
+		$("#walletinfo").show();			
+		}
+	}
+
+
+	$(document).ready(function () {
+
+	
+	$("#walletinfo").hide()
+	$("#newwallet").show();
+
+	}); // end doc ready
+
+	//-->
+</script>
+
+</head>
+
+<body>
+<!-- Wallet Content -->
+	<div role="main" class="container">
+		<div style="margin: auto" class="container mt20">
+			<div id="newwallet" align="center" style="margin: auto; display: none;">
+			<h1 align="center">Signed Public Key Verification Tool</h1>
+					Enter the Public Key (HEX) you wish to verify and its signature<br><br>
+					<input type="text" class="form-control" id="pubkey" value="" size=75 placeholder="Public Key">
+					<br>
+					<input type="text" class="form-control" id="signature" value="" size=75 placeholder="Signature">
+
+					<button style="margin-top: 16px" type="button" class="btn btn-info" id="mkmsig" onclick="javascript:verifysignedpubkey()">Verify Signed Public Key</button><br/>
+					<hr>
+				<br><br>
+			</div>
+		</div>
+		
+		<div class="container" id="walletinfo" align="center" style="margin: auto;" style="display:none"></div>
+		<div id="spacer" align="center" style="margin: auto;"></div>
+		</div>
+
+	</div>
+</div>	
+</body>
+</html>
